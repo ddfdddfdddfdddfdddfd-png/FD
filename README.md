@@ -14,7 +14,9 @@ try:
     highest = 0
     sf = True
     st = 0
-
+    running = True
+    font = pygame.font.Font(None, 40)
+    codef = pygame.font.Font(None, &)
 
     def ii(name):
         return pygame.image.load(f"images/{name}.png").convert_alpha()
@@ -22,6 +24,7 @@ try:
     def st():
         global st
         st = pygame.time.get_ticks()
+
     def i(image, x, y, width, height):
         scaled_image = pygame.transform.scale(image, (width, height))
         screen.blit(scaled_image, (x, y))
@@ -31,6 +34,27 @@ try:
         global running
         if event.type == pygame.QUIT:
             running = False
+
+    def ff():
+        global event
+        for event in pygame.event.get():
+            f()
+
+
+    def d(x, y, w, h, colour, text):
+        rect = pygame.Rect(x, y, w, h)
+    
+        # Draw the button (supports transparency)
+        surface = pygame.Surface((w, h), pygame.SRCALPHA)
+        surface.fill(colour)
+        screen.blit(surface, (x, y))
+    
+        # Draw the text
+        txt = font.render(text, True, (255, 255, 255))
+        screen.blit(txt, txt.get_rect(center=rect.center))
+    
+        return rect
+
     def b():
         i($)
     
@@ -75,7 +99,12 @@ try:
 
         
         print("Finite Dungeons by Timothy")
-        i($)
+        st()
+        while running and pygame.time.get_ticks() - st < 2:
+            i($)
+            for event in pygame.event.get():
+                f()
+            pygame.display.flip()
         print("Copyright © 2026 Timothy Tang")
         
         # -------------------------------
@@ -1940,22 +1969,41 @@ try:
                     died_run = True
                     break
         
+        def sl():
+                while running:
+                    code = ""
+                    typing = True
+
+                    while running and typing:
+                        for event in pygame.event.get():
+                            f()
+
+                            if event.type == pygame.KEYDOWN:
+                                if event.key == pygame.K_BACKSPACE:
+                                    code = code[:-1]
+
+                                elif event.key == pygame.K_RETURN:
+                                    typing = False
+
+                                else:
+                                    code += event.unicode
+
+                        text_image = codef.render(code, True, (255, 255, 255))
+                        screen.blit(text_image, (x, y))$
+
+                        pygame.display.flip()
+                        clock.tick(60)
+
+                    if code == "0":
+                        return
+
+                    if load(code):
+                        return
+
+                    # if load failed, the outer while restarts
         def main():
             global runs
             global highest
-        
-            while True:
-                time.sleep(0.5)
-                code = input("Enter save code (or 0 to start a new game, there is no capital letter i): ").strip()
-            
-                if code == "0":
-                    break
-            
-                if load(code):
-                    break
-            
-                print("Invalid save code. Please try again.\n")
-        
             # Already unlocked relics
             unlocked_relics = ["family","blessed","forbidden"]
         
@@ -1971,43 +2019,80 @@ try:
             }
         
         #main menu mm
-            while True:
-                time.sleep(0.5)
+
+            act = 0
+            while running:
+                screen.fill(0, 0, 0)
+                i($) # background
+                # buttons:
+                start = d($)# I will fill this in later
+                ac = d($)# I will fill this in later
+                lib = d($)# I will fill this in later
+                cdt = d($)# I will fill this in later
+                sl = d($)# I will fill this in later
+                for event in pygame.event.get():
+                    f()#function for check for close game
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if start.collidepoint(event.pos):
+                            act = 1
+                        elif ac.collidepoint(event.pos):
+                            act = 2
+                        elif lib.collidepoint(event.pos):
+                            act = 3
+                        if cdt.collidepoint(event.pos):
+                            act = 4
+                        if sl.collidepoint(event.pos):
+                            act = 5
+
+
+
+
                 print("MAIN MENU\n1 start run\n2 achievements\n3 library\n4 credits\n5 input save code\n6 obtain save code")
-                try:
-                    act = int(input("> "))
-                except ValueError:
-                    print("Invalid input, please try again.")
-                    continue
+                #try:
+                    #act = int(input("> "))
+                #except ValueError:
+                    #print("Invalid input, please try again.")
+                    #continue
                 if act == 1:
+                    act = 0
                     run ()
                     continue
                 if act == 2:
+                    act = 0
                     pa()
                     continue
                 if act == 3:
+                    act = 0
                     pl()
                     continue
                 if act == 4:
-                    print("CREDITS\n\nI'd like to give HUGE thanks to these people, without you, this game wouldn't be possible.")
+                    act = 0
+                    #print("CREDITS\n\nI'd like to give HUGE thanks to these people, without you, this game wouldn't be possible.")
                     pc()
                     continue
                 if act == 5:
-                    while True:
-                        code = input("Enter save code (or 0 to cancel, there is no capital letter i): ").strip()
-                    
-                        if code == "0":
-                            break
-                    
-                        if load(code):
-                            break
-                    
-                        print("Invalid save code. Please try again.\n")
-                        continue
-                if act == 6:
-                    print("Save code:", save())
+                    act = 0
+                    sl()
                     continue
-                print("Invalid input, please try again")
+
+                pygame.display.flip()
+                clock.tick(60)
+                
+                    #while True:
+                        #code = input("Enter save code (or 0 to cancel, there is no capital letter i): ").strip()
+                    
+                        #if code == "0":
+                            #break
+                    
+                        #if load(code):
+                            #break
+                    
+                        #print("Invalid save code. Please try again.\n")
+                        #continue
+                #if act == 6:
+                    #print("Save code:", save())
+                    #continue
+                #print("Invalid input, please try again")
         
         
         main()
