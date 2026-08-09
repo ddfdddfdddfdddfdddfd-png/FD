@@ -18,28 +18,79 @@ try:
     font = pygame.font.Font(None, 40)
     codef = pygame.font.Font(None, &)
 
+    def m(pos):
+        mx, my = pos
+    
+        mx = mx * screen.get_width() / real_screen.get_width()
+        my = my * screen.get_height() / real_screen.get_height()
+    
+        return mx, my
+    
     def ii(name):
-        return pygame.image.load(f"images/{name}.png").convert_alpha()
+        if hasattr(sys, "_MEIPASS"):
+            base = sys._MEIPASS
+        else:
+            base = os.path.dirname(os.path.abspath(__file__))
+    
+        return pygame.image.load(
+            os.path.join(base, "images", name + ".png")
+        ).convert_alpha()
 
-    def st():
+    def db(x, y, width, height, colour=(255, 255, 255), thickness=2, gap=4, border_radius=10):
+        pygame.draw.rect(screen, colour,
+                         (x, y, width, height),
+                         thickness,
+                         border_radius=border_radius)
+    
+        pygame.draw.rect(screen, colour,
+                         (x + gap, y + gap, width - gap * 2, height - gap * 2),
+                         thickness,
+                         border_radius=max(0, border_radius - gap))
+
+    def stt():
         global st
         st = pygame.time.get_ticks()
 
-    def i(image, x, y, width, height):
+    def i(image, x, y, width, height, alpha=255):
         scaled_image = pygame.transform.scale(image, (width, height))
-        screen.blit(scaled_image, (x, y))
+        scaled_image.set_alpha(alpha)
+        return screen.blit(scaled_image, (x, y))
 
     def f():
         global event
         global running
+        global real_screen  # 讓函數可以更新實際的視窗大小
+    
         if event.type == pygame.QUIT:
             running = False
+            
+        elif event.type == pygame.VIDEORESIZE:
+            new_w, new_h = event.w, event.h
+            
+            # 鎖定 3:2 比例
+            if new_w / new_h > 1.5:
+                new_w = (new_h * 3) // 2
+            else:
+                new_h = (new_w * 2) // 3
+                
+            # 重新設定實際視窗的大小
+            real_screen = pygame.display.set_mode((new_w, new_h), pygame.RESIZABLE)
+    
+    def e():
+        # 1. 把你的遊戲畫布（screen）完美縮放到實際視窗（real_screen）的大小
+        scaled_game = pygame.transform.scale(screen, real_screen.get_size())
+        # 2. 把貼圖畫到實際視窗上
+        real_screen.blit(scaled_game, (0, 0))
+        # 3. 刷新螢幕
+        pygame.display.flip()
+        clock.tick(60) 
+        
 
     def ff():
         global event
+        global running
         for event in pygame.event.get():
             f()
-
 
     def d(x, y, w, h, colour, text):
         rect = pygame.Rect(x, y, w, h)
@@ -55,6 +106,101 @@ try:
     
         return rect
 
+    def w(text, x, y, colour=(255, 255, 255), fo=font, center=False):
+        surface = f.render(str(text), True, colour)
+        rect = surface.get_rect()
+        if center:
+            rect.center = (x, y)
+        else:
+            rect.topleft = (x, y)
+        screen.blit(surface, rect)
+
+    def aprint(text, colour=(255, 255, 255)):
+        global event
+        global running
+    
+        line_y = $y
+    
+        for line in text.split("\n"):
+            w(
+                line,
+                $x,
+                line_y,
+                colour=colour,
+                fo=$font,
+                center=$center
+            )
+            line_y += $line_spacing
+        
+        pygame.display.update($update_area)
+    
+        waiting = True
+        while waiting and running:
+            for event in pygame.event.get():
+                f()
+    
+                if event.type == pygame.KEYDOWN:
+                    waiting = False
+    
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    waiting = False
+
+
+    def bprint(text, x, y, colour=(255, 255, 255), fo=font, center=False, update_area=None):
+        global event
+        global running
+    
+        # draw text
+        w(text, x, y, colour, f, center)
+    
+        # update only selected area, otherwise update whole screen
+        if update_area:
+            pygame.display.update(update_area)
+        else:
+            e()
+            #pygame.display.update()
+    
+        # wait for input
+        waiting = True
+        while waiting and running:
+            for event in pygame.event.get():
+                f()
+    
+                if event.type == pygame.KEYDOWN:
+                    waiting = False
+    
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    waiting = False
+
+    def cprint(text, colour=(255, 255, 255)):
+        global event
+        global running
+    
+        w(
+            text,
+            $x,
+            $y,
+            colour=colour,
+            fo=$font,
+            center=$center
+        )
+    
+        pygame.display.update([
+            $update_area1,
+            $update_area2
+        ])
+    
+        waiting = True
+        while waiting and running:
+            for event in pygame.event.get():
+                f()
+    
+                if event.type == pygame.KEYDOWN:
+                    waiting = False
+    
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    waiting = False
+    
     def b():
         i($)
     
@@ -68,10 +214,10 @@ try:
 
 
 
-    WIDTH = 1500
-    HEIGHT = 750
-    
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    WIDTH, HEIGHT = 1200, 800 # 你的 3:2 基礎遊戲大小
+    real_screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+    screen = pygame.Surface((WIDTH, HEIGHT)) # 你原本所有的 code 都繼續畫在這裡
+
     pygame.display.set_caption("Finite Dungeons")
     
     clock = pygame.time.Clock()
@@ -99,12 +245,14 @@ try:
 
         
         print("Finite Dungeons by Timothy")
-        st()
-        while running and pygame.time.get_ticks() - st < 2:
+        stt()
+        while running and pygame.time.get_ticks() - st < 2000:
             i($)
             for event in pygame.event.get():
                 f()
-            pygame.display.flip()
+            e()
+            
+            #clock.tick(60)
         print("Copyright © 2026 Timothy Tang")
         
         # -------------------------------
@@ -141,7 +289,7 @@ try:
         }
         
         def save():
-            alphabet = "0123456789ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+            alphabet = "0123456789ABCDEFGHJKLMNIPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         
             # ---------- Pack achievements into 8 bits ----------
             achievement_bits = (
@@ -407,7 +555,8 @@ try:
         
         #🤺🤺🤺🤺🤺🧯🧯🧯🧯🧯
         def fight(player, monster):
-            global level
+            
+            global level, event
             """Simulate fight until player or monster dies."""
         
             if player.yd2 == 1:
@@ -573,7 +722,7 @@ try:
             bought_elixir_this_turn = player.bought_elixir_this_turn
             """Player can buy items here. 0 → start fight."""
             while True:
-                time.sleep(0.5)
+                #time.sleep(0.5)
                 display_player_and_next_monster(player, level)
                 print(f"\nMoney: {player.money:.2f}")
                 options = {}
@@ -1557,7 +1706,7 @@ try:
             
         
         
-        def pc():
+        def pc():qqwq
             print("\nGuido van Rossum, creator of Python, who provided coding language to me")
             
             print("\nSteve Jobs, co-founder of Apple, who provided my device to me")
@@ -1597,20 +1746,36 @@ try:
             print("\nAnd of course, YOU, the player, who decided to read the credits instead of playing the game, proving to me how my game is not even as entertaining as some random credits, providing me with emotional damage\n")
         
         def load(code):
-            global runs, highest, ac
+            global runs, highest, ac, st, running, event
         
-            alphabet = "0123456789ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+            alphabet = "0123456789ABCDEFGHJKLMNIPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         
             # ---------- Basic validation ----------
             if len(code) != 5:
                 print("Invalid save code.")
+                stt()
+                while running and pygame.time.get_ticks()-st <= 2000:
+                    ff()
+                    screen.fill((0, 0, 0)) 
+                    w($)
+                    e()
+                    #pygame.display.update() 
+                  #  clock.tick(60)
                 return False
         
             # ---------- Convert Base 61 back to integer ----------
             value = 0
             for char in code:
                 if char not in alphabet:
-                    print("Invalid save code.")
+                    stt()
+                    while running and pygame.time.get_ticks()-st <= 2000:
+                        #print("Invalid save code.")
+                        ff()
+                        screen.fill((0, 0, 0)) 
+                        w($)
+                        e()
+                        #pygame.display.update() 
+                        #clock.tick(60)
                     return False
                 value = value * 61 + alphabet.index(char)
         
@@ -1625,7 +1790,17 @@ try:
         
             # ---------- Range checking ----------
             if runs > 1024 or highest > 30:
-                print("Corrupted save code.")
+                #print("Corrupted save code.")
+                stt()
+                while running and pygame.time.get_ticks()-st <= 2000:
+                        
+                    ff()
+                    screen.fill((0, 0, 0)) 
+                    w($)
+                    e()
+                    #pygame.display.update() 
+                    #clock.tick(60)
+                return False
                 return False
         
             # ---------- Decode achievements ----------
@@ -1639,10 +1814,20 @@ try:
             ac["hmode"]          = bool(achievement_bits & 1)
         
             print(f"\nSave loaded successfully.\nRuns: {runs}   Highest lv. beaten: {highest}\n")
+            stt()
+            while running and pygame.time.get_ticks()-st <= 2000:
+                #print("Invalid save code.")
+                ff()
+                screen.fill((0, 0, 0)) 
+                w($)
+                e()
+                #pygame.display.update() 
+                #clock.tick(60)
+            
             return True
         
         def run():
-            global runs
+            global runs, running, event
             global level
             global highest
             died_run = False
@@ -1659,7 +1844,7 @@ try:
                 "carrier": 20,
                 "vitality": 20
             }
-            while True: #rub
+            while running: #rubqqwq
                 if died_run:
                     break
                 # E-Sword not put in game untill balanced
@@ -1970,39 +2155,41 @@ try:
                     break
         
         def sl():
-                while running:
-                    code = ""
-                    typing = True
+            global running, event
+            while running:
+                code = ""
+                typing = True
 
-                    while running and typing:
-                        for event in pygame.event.get():
-                            f()
+                while running and typing:
+                    for event in pygame.event.get():
+                        f()
 
-                            if event.type == pygame.KEYDOWN:
-                                if event.key == pygame.K_BACKSPACE:
-                                    code = code[:-1]
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_BACKSPACE:
+                                code = code[:-1]
 
-                                elif event.key == pygame.K_RETURN:
-                                    typing = False
+                            elif event.key == pygame.K_RETURN:
+                                typing = False
 
-                                else:
-                                    code += event.unicode
+                            else:
+                                code += event.unicode
 
-                        text_image = codef.render(code, True, (255, 255, 255))
-                        screen.blit(text_image, (x, y))$
+                    text_image = codef.render(code, True, (255, 255, 255))
+                    screen.blit(text_image, (x, y))$
+                    e()
+                    pygame.display.flip()
+                    #clock.tick(60)
 
-                        pygame.display.flip()
-                        clock.tick(60)
+                if code == "0":
+                    return
 
-                    if code == "0":
-                        return
-
-                    if load(code):
-                        return
+                if load(code):
+                    return
 
                     # if load failed, the outer while restarts
         def main():
-            global runs
+            global runs, event, running
+            
             global highest
             # Already unlocked relics
             unlocked_relics = ["family","blessed","forbidden"]
@@ -2025,23 +2212,27 @@ try:
                 screen.fill(0, 0, 0)
                 i($) # background
                 # buttons:
-                start = d($)# I will fill this in later
-                ac = d($)# I will fill this in later
-                lib = d($)# I will fill this in later
-                cdt = d($)# I will fill this in later
-                sl = d($)# I will fill this in later
+                start = i($)# I will fill this in later
+                ac = i($)# I will fill this in later
+                lib = i($)# I will fill this in later
+                cdt = i($)# I will fill this in later
+                sl = i($)# I will fill this in later
+                # for event in pygame.event.get():
                 for event in pygame.event.get():
-                    f()#function for check for close game
+                    f()
+                
                     if event.type == pygame.MOUSEBUTTONDOWN:
-                        if start.collidepoint(event.pos):
+                        mouse_pos = m(event.pos)
+                
+                        if start.collidepoint(mouse_pos):
                             act = 1
-                        elif ac.collidepoint(event.pos):
+                        elif ac.collidepoint(mouse_pos):
                             act = 2
-                        elif lib.collidepoint(event.pos):
+                        elif lib.collidepoint(mouse_pos):
                             act = 3
-                        if cdt.collidepoint(event.pos):
+                        elif cdt.collidepoint(mouse_pos):
                             act = 4
-                        if sl.collidepoint(event.pos):
+                        elif sl.collidepoint(mouse_pos):
                             act = 5
 
 
@@ -2074,9 +2265,9 @@ try:
                     act = 0
                     sl()
                     continue
-
-                pygame.display.flip()
-                clock.tick(60)
+                e()
+                #pygame.display.flip()
+               # clock.tick(60)
                 
                     #while True:
                         #code = input("Enter save code (or 0 to cancel, there is no capital letter i): ").strip()
