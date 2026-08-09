@@ -33,7 +33,7 @@ def shop(player, level):
     row_h = 45
 
     # Columns
-    name_x = list_x + 15
+    name_x = list_x + 50
     price_x = list_x + list_w - 150
     stock_x = list_x + list_w - 45
 
@@ -46,7 +46,7 @@ def shop(player, level):
     # ---------------------------------------------------------
     # Shop loop
     # ---------------------------------------------------------
-
+		selected_item = None
     while running:
 
         # -----------------------------------------------------
@@ -453,7 +453,28 @@ def shop(player, level):
                     left
                 )
             )
+        # -----------------------------------------------------
+        # IMAGE PLACEHOLDERS
+        #
+        # Replace None with your actual image variables later.
+        # Example:
+        # "sword": sword_image,
+        # -----------------------------------------------------
 
+        item_images = {
+            "sword": None,
+            "battery": None,
+            "shield": None,
+            "boots": None,
+            "chicken": None,
+            "book_atk": None,
+            "book_def": None,
+            "book_spd": None,
+            "book_hp": None,
+            "book_heal": None,
+            "elixir": None,
+            "ink": None
+        }
         # -----------------------------------------------------
         # ITEM ROWS + HITBOXES
         # -----------------------------------------------------
@@ -502,46 +523,57 @@ def shop(player, level):
                 row_h
             )
 
-            # Grey text if stock = 0
-            if stock <= 0:
-                text_colour = (130, 130, 130)
-            else:
-                text_colour = (0, 0, 0)
-
-            # Name
-            w(
-                name,
-                name_x,
-                y + row_h // 2,
-                text_colour,
-                font,
-                center=True
-            )
-
-            # Price
-            w(
-                str(price),
-                price_x,
-                y + row_h // 2,
-                text_colour,
-                font,
-                center=True
-            )
-
-            # Stock
-            if stock >= 99:
-                stock_text = "∞"
-            else:
-                stock_text = str(max(0, stock))
-
-            w(
-                stock_text,
-                stock_x,
-                y + row_h // 2,
-                text_colour,
-                font,
-                center=True
-            )
+		        # Grey text if stock = 0
+		        if stock <= 0:
+		            text_colour = (130, 130, 130)
+		        else:
+		            text_colour = (0, 0, 0)
+		
+		        # Item image
+		        image = item_images.get(key)
+		
+		        if image is not None:
+		            i(
+		                image,
+		                list_x + 10,
+		                y + 5,
+		                35,
+		                35
+		            )
+		
+		        # Name
+		        w(
+		            name,
+		            name_x,
+		            y + row_h // 2,
+		            text_colour,
+		            font
+		        )
+		
+		        # Price
+		        w(
+		            str(price),
+		            price_x,
+		            y + row_h // 2,
+		            text_colour,
+		            font,
+		            center=True
+		        )
+		
+		        # Stock
+		        if stock >= 99:
+		            stock_text = "∞"
+		        else:
+		            stock_text = str(max(0, stock))
+		
+		        w(
+		            stock_text,
+		            stock_x,
+		            y + row_h // 2,
+		            text_colour,
+		            font,
+		            center=True
+		        )
 
         # -----------------------------------------------------
         # BOTTOM-RIGHT
@@ -567,28 +599,7 @@ def shop(player, level):
         # RIGHT-HAND ITEM INFORMATION
         # -----------------------------------------------------
 
-        # -----------------------------------------------------
-        # IMAGE PLACEHOLDERS
-        #
-        # Replace None with your actual image variables later.
-        # Example:
-        # "sword": sword_image,
-        # -----------------------------------------------------
 
-        item_images = {
-            "sword": None,
-            "battery": None,
-            "shield": None,
-            "boots": None,
-            "chicken": None,
-            "book_atk": None,
-            "book_def": None,
-            "book_spd": None,
-            "book_hp": None,
-            "book_heal": None,
-            "elixir": None,
-            "ink": None
-        }
 
         # -----------------------------------------------------
         # TEXT WRAPPING
@@ -1227,8 +1238,8 @@ def shop(player, level):
                     for item in item_rows:
 
                         if (
-                            item["stock"] > 0
-                            and item["hitbox"].collidepoint(
+                            
+                            item["hitbox"].collidepoint(
                                 mouse_pos
                             )
                         ):
@@ -1452,5 +1463,3 @@ def shop(player, level):
         # -----------------------------------------------------
         # DISPLAY
         # -----------------------------------------------------
-
-        e()
