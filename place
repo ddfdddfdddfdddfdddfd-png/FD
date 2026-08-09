@@ -1,0 +1,1456 @@
+def shop(player, level):
+    global sf
+    global ts
+    global running
+
+    c = player.c
+    cc = player.cc
+    ccc = player.ccc
+    bought_elixir_this_turn = player.bought_elixir_this_turn
+
+    # ---------------------------------------------------------
+    # Layout
+    # ---------------------------------------------------------
+
+    top_h = 200
+
+    # Bottom-left
+    left_x = 0
+    left_y = 200
+    left_w = 800
+    left_h = 600
+
+    # Bottom-right
+    right_x = 800
+    right_y = 200
+    right_w = 400
+    right_h = 600
+
+    # Item list
+    list_x = 20
+    list_y = 240
+    list_w = 760
+    row_h = 45
+
+    # Columns
+    name_x = list_x + 15
+    price_x = list_x + list_w - 150
+    stock_x = list_x + list_w - 45
+
+    # ---------------------------------------------------------
+    # Create monster ONCE
+    # ---------------------------------------------------------
+
+    monster = create_monster(level)
+
+    # ---------------------------------------------------------
+    # Shop loop
+    # ---------------------------------------------------------
+
+    while running:
+
+        # -----------------------------------------------------
+        # BACKGROUND
+        # -----------------------------------------------------
+
+        screen.fill((255, 255, 255))
+
+        # -----------------------------------------------------
+        # TOP — PLAYER / MONSTER TABLE
+        # -----------------------------------------------------
+
+        table_x = 20
+        table_y = 20
+
+        label_x = table_x + 15
+
+        stat_start_x = table_x + 270
+        stat_spacing = 100
+
+        hp_x = stat_start_x
+        atk_x = stat_start_x + stat_spacing
+        def_x = stat_start_x + stat_spacing * 2
+        spd_x = stat_start_x + stat_spacing * 3
+
+        # Headings
+        w("HP", hp_x, table_y + 5, (0, 0, 0), font)
+        w("ATK", atk_x, table_y + 5, (0, 0, 0), font)
+        w("DEF", def_x, table_y + 5, (0, 0, 0), font)
+        w("SPD", spd_x, table_y + 5, (0, 0, 0), font)
+
+        # Row names
+        w(
+            "Player",
+            label_x,
+            table_y + 40,
+            (0, 0, 0),
+            font
+        )
+
+        w(
+            "Monster",
+            label_x,
+            table_y + 110,
+            (0, 0, 0),
+            font
+        )
+
+        # -----------------------------------------------------
+        # PLAYER STATS
+        # -----------------------------------------------------
+
+        w(
+            f"{player.hp}/{player.max_hp}",
+            hp_x,
+            table_y + 40,
+            (0, 0, 0),
+            font
+        )
+
+        if player.extra_atk > 0:
+            player_atk_text = (
+                f"{player.atk}+{player.extra_atk} "
+                f"({get_atk(player)})"
+            )
+        else:
+            player_atk_text = f"{player.atk}"
+
+        w(
+            player_atk_text,
+            atk_x,
+            table_y + 40,
+            (0, 0, 0),
+            font
+        )
+
+        if player.extra_df > 0:
+            player_def_text = (
+                f"{player.df}+{player.extra_df} "
+                f"({get_df(player)})"
+            )
+        else:
+            player_def_text = f"{player.df}"
+
+        w(
+            player_def_text,
+            def_x,
+            table_y + 40,
+            (0, 0, 0),
+            font
+        )
+
+        if player.extra_spd > 0:
+            player_spd_text = (
+                f"{player.spd}+{player.extra_spd} "
+                f"({get_spd(player)})"
+            )
+        else:
+            player_spd_text = f"{player.spd}"
+
+        w(
+            player_spd_text,
+            spd_x,
+            table_y + 40,
+            (0, 0, 0),
+            font
+        )
+
+        # -----------------------------------------------------
+        # MONSTER STATS
+        # -----------------------------------------------------
+
+        w(
+            f"{monster.hp}/{monster.max_hp}",
+            hp_x,
+            table_y + 110,
+            (0, 0, 0),
+            font
+        )
+
+        w(
+            f"{monster.atk}",
+            atk_x,
+            table_y + 110,
+            (0, 0, 0),
+            font
+        )
+
+        w(
+            f"{monster.df}",
+            def_x,
+            table_y + 110,
+            (0, 0, 0),
+            font
+        )
+
+        w(
+            f"{monster.spd}",
+            spd_x,
+            table_y + 110,
+            (0, 0, 0),
+            font
+        )
+
+        # -----------------------------------------------------
+        # TOP-RIGHT — LEVEL
+        # -----------------------------------------------------
+
+        top_right_x = 950
+        box_w = 230
+        box_h = 100
+
+        i(
+            gb,
+            top_right_x,
+            0,
+            box_w,
+            box_h
+        )
+
+        db(
+            top_right_x,
+            0,
+            box_w,
+            box_h
+        )
+
+        w(
+            f"Level: {level}",
+            top_right_x + box_w // 2,
+            50,
+            (0, 0, 0),
+            font,
+            center=True
+        )
+
+        # -----------------------------------------------------
+        # TOP-RIGHT — MONEY
+        # -----------------------------------------------------
+
+        i(
+            gb,
+            top_right_x,
+            100,
+            box_w,
+            box_h
+        )
+
+        db(
+            top_right_x,
+            100,
+            box_w,
+            box_h
+        )
+
+        w(
+            f"Money: {player.money:.2f}",
+            top_right_x + box_w // 2,
+            150,
+            (0, 0, 0),
+            font,
+            center=True
+        )
+
+        # -----------------------------------------------------
+        # BOTTOM-LEFT — HEADINGS
+        # -----------------------------------------------------
+
+        w(
+            "Name",
+            name_x,
+            210,
+            (0, 0, 0),
+            font
+        )
+
+        w(
+            "Price",
+            price_x,
+            210,
+            (0, 0, 0),
+            font
+        )
+
+        w(
+            "Stock",
+            stock_x,
+            210,
+            (0, 0, 0),
+            font
+        )
+
+        # -----------------------------------------------------
+        # DETERMINE SHOP ITEMS
+        # -----------------------------------------------------
+
+        item_data = []
+
+        # Sword / Battery
+        #
+        # yd = neither Sword nor Battery is available here.
+        #
+        if player.relic != "yd":
+
+            if (
+                player.relic != "e-sword"
+                and player.used_e_sword_before != 1
+            ):
+                left = max(
+                    0,
+                    1 - player.bought["sword"]
+                )
+
+                item_data.append(
+                    ("sword", "Sword", 2, left)
+                )
+
+            else:
+                left = max(
+                    0,
+                    5 - player.bought["battery"]
+                )
+
+                item_data.append(
+                    (
+                        "battery",
+                        "Battery for Countering",
+                        2,
+                        left
+                    )
+                )
+
+        # -----------------------------------------------------
+        # Shield
+        # -----------------------------------------------------
+
+        left = max(
+            0,
+            1 - player.bought["shield"]
+        )
+
+        item_data.append(
+            ("shield", "Shield", 2, left)
+        )
+
+        # -----------------------------------------------------
+        # Boots
+        # -----------------------------------------------------
+
+        if player.artefact == "socks":
+
+            item_data.append(
+                ("boots", "Boots", 2, 0)
+            )
+
+        else:
+
+            left = max(
+                0,
+                1 - player.bought["boots"]
+            )
+
+            item_data.append(
+                ("boots", "Boots", 2, left)
+            )
+
+        # -----------------------------------------------------
+        # Chicken
+        # -----------------------------------------------------
+
+        if player.relic == "sk":
+
+            left = max(
+                0,
+                3 - player.bought["chicken"]
+            )
+
+        elif player.relic == "bk":
+
+            left = max(
+                0,
+                1 - player.bought["chicken"]
+            )
+
+        elif player.relic in ("gk", "dk"):
+
+            left = 9999999
+
+        else:
+
+            left = max(
+                0,
+                1 - player.bought["chicken"]
+            )
+
+        item_data.append(
+            ("chicken", "Chicken", 2, left)
+        )
+
+        # -----------------------------------------------------
+        # Books
+        # -----------------------------------------------------
+
+        books = [
+            ("atk", "Book of Attack"),
+            ("def", "Book of Defence"),
+            ("spd", "Book of Speed"),
+            ("hp", "Book of Max HP"),
+            ("heal", "Book of Healing")
+        ]
+
+        for key, name in books:
+
+            left = max(
+                0,
+                3 - player.books[key]
+            )
+
+            item_data.append(
+                (
+                    f"book_{key}",
+                    name,
+                    3,
+                    left
+                )
+            )
+
+        # -----------------------------------------------------
+        # Elixir
+        # -----------------------------------------------------
+
+        if player.artefact == "devotion":
+
+            left = max(
+                0,
+                1 - player.bought_elixir_this_turn
+            )
+
+            item_data.append(
+                (
+                    "elixir",
+                    "Elixir",
+                    1,
+                    left
+                )
+            )
+
+        # -----------------------------------------------------
+        # Forbidden Ink
+        # -----------------------------------------------------
+
+        if player.relic == "forbidden":
+
+            left = max(
+                0,
+                10 - player.forbidden_ink_total
+            )
+
+            item_data.append(
+                (
+                    "ink",
+                    "Forbidden Ink",
+                    7,
+                    left
+                )
+            )
+
+        # -----------------------------------------------------
+        # ITEM ROWS + HITBOXES
+        # -----------------------------------------------------
+
+        item_rows = []
+
+        for row_number, (
+            key,
+            name,
+            price,
+            stock
+        ) in enumerate(item_data):
+
+            y = list_y + row_number * row_h
+
+            # Hitbox
+            hitbox = pygame.Rect(
+                list_x,
+                y,
+                list_w,
+                row_h
+            )
+
+            item_rows.append({
+                "name": name,
+                "key": key,
+                "price": price,
+                "stock": stock,
+                "hitbox": hitbox
+            })
+
+            # Grey box
+            i(
+                gb,
+                list_x,
+                y,
+                list_w,
+                row_h
+            )
+
+            # Double border
+            db(
+                list_x,
+                y,
+                list_w,
+                row_h
+            )
+
+            # Grey text if stock = 0
+            if stock <= 0:
+                text_colour = (130, 130, 130)
+            else:
+                text_colour = (0, 0, 0)
+
+            # Name
+            w(
+                name,
+                name_x,
+                y + row_h // 2,
+                text_colour,
+                font,
+                center=True
+            )
+
+            # Price
+            w(
+                str(price),
+                price_x,
+                y + row_h // 2,
+                text_colour,
+                font,
+                center=True
+            )
+
+            # Stock
+            if stock >= 99:
+                stock_text = "∞"
+            else:
+                stock_text = str(max(0, stock))
+
+            w(
+                stock_text,
+                stock_x,
+                y + row_h // 2,
+                text_colour,
+                font,
+                center=True
+            )
+
+        # -----------------------------------------------------
+        # BOTTOM-RIGHT
+        # -----------------------------------------------------
+
+        i(
+            gb,
+            right_x,
+            right_y,
+            right_w,
+            right_h
+        )
+
+        db(
+            right_x,
+            right_y,
+            right_w,
+            right_h
+        )
+
+        # -----------------------------------------------------
+        # -----------------------------------------------------
+        # RIGHT-HAND ITEM INFORMATION
+        # -----------------------------------------------------
+
+        # -----------------------------------------------------
+        # IMAGE PLACEHOLDERS
+        #
+        # Replace None with your actual image variables later.
+        # Example:
+        # "sword": sword_image,
+        # -----------------------------------------------------
+
+        item_images = {
+            "sword": None,
+            "battery": None,
+            "shield": None,
+            "boots": None,
+            "chicken": None,
+            "book_atk": None,
+            "book_def": None,
+            "book_spd": None,
+            "book_hp": None,
+            "book_heal": None,
+            "elixir": None,
+            "ink": None
+        }
+
+        # -----------------------------------------------------
+        # TEXT WRAPPING
+        # -----------------------------------------------------
+
+        def draw_wrapped_text(
+            text,
+            x,
+            y,
+            max_width,
+            colour,
+            fo,
+            line_spacing=4,
+            center=False
+        ):
+
+            words = str(text).split(" ")
+
+            lines = []
+            current_line = ""
+
+            for word in words:
+
+                if current_line == "":
+                    test_line = word
+                else:
+                    test_line = current_line + " " + word
+
+                if fo.size(test_line)[0] <= max_width:
+                    current_line = test_line
+
+                else:
+
+                    if current_line != "":
+                        lines.append(current_line)
+
+                    # Handle a single word that is itself too long.
+                    while fo.size(word)[0] > max_width:
+
+                        cut = len(word)
+
+                        while (
+                            cut > 1
+                            and fo.size(word[:cut])[0] > max_width
+                        ):
+                            cut -= 1
+
+                        lines.append(word[:cut])
+                        word = word[cut:]
+
+                    current_line = word
+
+            if current_line != "":
+                lines.append(current_line)
+
+            current_y = y
+
+            for line in lines:
+
+                if center:
+                    w(
+                        line,
+                        x,
+                        current_y,
+                        colour,
+                        fo,
+                        center=True
+                    )
+                else:
+                    w(
+                        line,
+                        x,
+                        current_y,
+                        colour,
+                        fo
+                    )
+
+                current_y += fo.get_height() + line_spacing
+
+            return current_y
+
+        # -----------------------------------------------------
+        # ITEM EFFECT TEXT
+        # -----------------------------------------------------
+
+        def get_item_effect(key):
+
+            if key == "sword":
+                return "+1 ATK"
+
+            if key == "battery":
+                return "+1 Counter"
+
+            if key == "shield":
+                return "+1 DEF"
+
+            if key == "boots":
+                return "+1 SPD"
+
+            if key == "chicken":
+
+                if player.relic == "bk":
+                    return (
+                        "Heal 7 HP. Can only be bought when "
+                        "at least 5 HP is missing."
+                    )
+
+                if player.relic == "sk":
+                    return (
+                        "Heal 7 HP. Can only be bought when "
+                        "at least 5 HP is missing."
+                    )
+
+                if player.relic == "gk":
+                    return "Fully restore HP."
+
+                if player.relic == "dk":
+                    return "Fully restore HP."
+
+                return "Heal 5 HP."
+
+            if key == "book_atk":
+                return "Double your ATK."
+
+            if key == "book_def":
+                return "Double your DEF."
+
+            if key == "book_spd":
+                return "Double your SPD."
+
+            if key == "book_hp":
+                return (
+                    "Double your Max HP after your next fight."
+                )
+
+            if key == "book_heal":
+                return "Fully restore HP."
+
+            if key == "elixir":
+                return (
+                    "Max HP -1. SPD -1 and extra SPD +6. "
+                    "Can only be bought once per turn."
+                )
+
+            if key == "ink":
+                return (
+                    "Carry Forbidden Ink into battle to "
+                    "instantly defeat the monster."
+                )
+
+            return ""
+
+        # -----------------------------------------------------
+        # CAN THIS ITEM CURRENTLY BE PURCHASED?
+        # -----------------------------------------------------
+
+        def can_purchase(key):
+
+            # Find current item information.
+            current = None
+
+            for item in item_rows:
+                if item["key"] == key:
+                    current = item
+                    break
+
+            if current is None:
+                return False
+
+            # Zero stock = unavailable.
+            if current["stock"] <= 0:
+                return False
+
+            # -----------------------------
+            # Equipment
+            # -----------------------------
+
+            if key == "sword":
+
+                return (
+                    player.money >= 2
+                    and player.bought["sword"] < 1
+                )
+
+            if key == "shield":
+
+                return (
+                    player.money >= 2
+                    and player.bought["shield"] < 1
+                )
+
+            if key == "boots":
+
+                return (
+                    player.money >= 2
+                    and player.bought["boots"] < 1
+                    and player.artefact != "socks"
+                )
+
+            # -----------------------------
+            # Battery
+            # -----------------------------
+
+            if key == "battery":
+
+                return (
+                    player.relic == "e-sword"
+                    and player.bought["battery"] < 5
+                    and player.money >= 2
+                )
+
+            # -----------------------------
+            # Chicken
+            # -----------------------------
+
+            if key == "chicken":
+
+                if player.relic == "dk":
+                    # This relic intentionally allows negative money
+                    # in the original purchase logic.
+                    return True
+
+                if player.relic == "gk":
+                    return player.money >= 2
+
+                if player.relic == "bk":
+                    return (
+                        player.money >= 2
+                        and player.bought["chicken"] < 1
+                        and player.max_hp - player.hp >= 5
+                    )
+
+                if player.relic == "sk":
+                    return (
+                        player.money >= 2
+                        and player.bought["chicken"] < 3
+                        and player.max_hp - player.hp >= 5
+                    )
+
+                return (
+                    player.money >= 2
+                    and player.bought["chicken"] < 1
+                    and player.max_hp - player.hp >= 5
+                )
+
+            # -----------------------------
+            # Books
+            # -----------------------------
+
+            if key.startswith("book_"):
+
+                book_key = key.split("_")[1]
+
+                return (
+                    player.money >= 3
+                    and player.books[book_key] < 3
+                )
+
+            # -----------------------------
+            # Elixir
+            # -----------------------------
+
+            if key == "elixir":
+
+                return (
+                    player.money >= 1
+                    and player.bought_elixir_this_turn < 1
+                )
+
+            # -----------------------------
+            # Forbidden Ink
+            # -----------------------------
+
+            if key == "ink":
+
+                return (
+                    player.money >= 7
+                    and player.forbidden_ink_total < 10
+                    and player.forbidden_ink < 1
+                )
+
+            return False
+
+        # -----------------------------------------------------
+        # PURCHASE ITEM
+        # -----------------------------------------------------
+
+        def purchase_item(key):
+
+            nonlocal c
+            nonlocal cc
+            nonlocal ccc
+            nonlocal bought_elixir_this_turn
+
+            # -----------------------------
+            # Sword
+            # -----------------------------
+
+            if key == "sword":
+
+                if (
+                    player.money >= 2
+                    and player.bought["sword"] < 1
+                ):
+                    player.atk += 1
+                    player.money -= 2
+                    player.bought["sword"] += 1
+                    return True
+
+                return False
+
+            # -----------------------------
+            # Shield
+            # -----------------------------
+
+            if key == "shield":
+
+                if (
+                    player.money >= 2
+                    and player.bought["shield"] < 1
+                ):
+                    player.df += 1
+                    player.money -= 2
+                    player.bought["shield"] += 1
+                    return True
+
+                return False
+
+            # -----------------------------
+            # Boots
+            # -----------------------------
+
+            if key == "boots":
+
+                if (
+                    player.artefact == "socks"
+                    or player.money < 2
+                    or player.bought["boots"] >= 1
+                ):
+                    return False
+
+                if player.relic == "meowton":
+                    player.extra_atk -= player.spd
+
+                player.spd += 1
+                player.money -= 2
+                player.bought["boots"] += 1
+
+                if player.relic == "meowton":
+                    player.extra_atk += player.spd
+
+                return True
+
+            # -----------------------------
+            # Battery
+            # -----------------------------
+
+            if key == "battery":
+
+                if (
+                    player.relic != "e-sword"
+                    or player.bought["battery"] >= 5
+                    or player.money < 2
+                ):
+                    return False
+
+                player.counters += 1
+                player.money -= 2
+                player.bought["battery"] += 1
+
+                return True
+
+            # -----------------------------
+            # Chicken
+            # -----------------------------
+
+            if key == "chicken":
+
+                # Blessed KOC
+                if player.relic == "bk":
+
+                    if (
+                        player.bought["chicken"] >= 1
+                        or player.money < 2
+                        or player.max_hp - player.hp < 5
+                    ):
+                        return False
+
+                    player.hp += 7
+                    player.money -= 2
+                    player.bought["chicken"] += 1
+
+                    if player.hp >= player.max_hp:
+                        player.hp = player.max_hp
+
+                    return True
+
+                # S-KOC
+                elif player.relic == "sk":
+
+                    if (
+                        player.bought["chicken"] >= 3
+                        or player.money < 2
+                        or player.max_hp - player.hp < 5
+                    ):
+                        return False
+
+                    player.hp += 7
+                    player.money -= 2
+                    player.bought["chicken"] += 1
+
+                    if player.hp >= player.max_hp:
+                        player.hp = player.max_hp
+
+                    return True
+
+                # G-KOC
+                elif player.relic == "gk":
+
+                    if player.money < 2:
+                        return False
+
+                    player.hp = player.max_hp
+                    player.money -= 2
+                    player.bought["chicken"] += 1
+
+                    return True
+
+                # D-KOC
+                elif player.relic == "dk":
+
+                    player.hp = player.max_hp
+                    player.money -= 2
+                    player.bought["chicken"] += 1
+
+                    if player.money < 0:
+                        ac["negative_money"] = True
+
+                    return True
+
+                # Normal chicken
+                else:
+
+                    if (
+                        player.bought["chicken"] >= 1
+                        or player.money < 2
+                        or player.max_hp - player.hp < 5
+                    ):
+                        return False
+
+                    player.hp += 5
+                    player.money -= 2
+                    player.bought["chicken"] += 1
+
+                    if player.yd3 == 4:
+                        player.hp += 5
+
+                    if player.hp >= player.max_hp:
+                        player.hp = player.max_hp
+
+                    return True
+
+            # -----------------------------
+            # Books
+            # -----------------------------
+
+            if key.startswith("book_"):
+
+                book_key = key.split("_")[1]
+
+                if (
+                    player.books[book_key] >= 3
+                    or player.money < 3
+                ):
+                    return False
+
+                if book_key == "heal":
+
+                    player.hp = player.max_hp
+
+                elif book_key == "hp":
+
+                    if player.socks_sealed:
+                        # Preserve the behaviour of the original code:
+                        # the purchase is counted but the 3 money is
+                        # effectively refunded.
+                        player.money += 3
+                    else:
+                        player.pending_hp_multiplier *= 2
+
+                elif book_key == "spd":
+
+                    if player.relic == "meowton":
+                        player.extra_atk -= player.spd
+
+                    player.spd *= 2
+
+                    if player.relic == "meowton":
+                        player.extra_atk += player.spd
+
+                else:
+
+                    attribute = (
+                        "df"
+                        if book_key == "def"
+                        else book_key
+                    )
+
+                    setattr(
+                        player,
+                        attribute,
+                        getattr(player, attribute) * 2
+                    )
+
+                player.books[book_key] += 1
+                player.money -= 3
+
+                return True
+
+            # -----------------------------
+            # Elixir
+            # -----------------------------
+
+            if key == "elixir":
+
+                if (
+                    player.bought_elixir_this_turn >= 1
+                    or player.money < 1
+                ):
+                    return False
+
+                player.money -= 1
+                player.bought["elixir"] += 1
+                player.bought_elixir_this_turn += 1
+
+                bought_elixir_this_turn = (
+                    player.bought_elixir_this_turn
+                )
+
+                player.max_hp -= player.bought["elixir"]
+
+                if player.hp > player.max_hp:
+                    player.hp = player.max_hp
+
+                # Preserve the original shop-death behaviour.
+                if player.hp <= 0:
+                    ac["shop_death"] = True
+                    return "dead"
+
+                if player.relic == "meowton":
+                    player.extra_atk -= (
+                        player.extra_spd + player.spd
+                    )
+
+                player.spd -= 1
+                player.extra_spd += 6
+
+                if player.relic == "meowton":
+                    player.extra_atk += (
+                        player.extra_spd + player.spd
+                    )
+
+                # Counter restoration.
+                if c == 0:
+                    c = 3
+                elif cc == 0:
+                    cc = 3
+                else:
+                    ccc = 3
+
+                return True
+
+            # -----------------------------
+            # Forbidden Ink
+            # -----------------------------
+
+            if key == "ink":
+
+                if (
+                    player.forbidden_ink_total >= 10
+                    or player.forbidden_ink >= 1
+                    or player.money < 7
+                ):
+                    return False
+
+                player.forbidden_ink = 1
+                player.forbidden_ink_total += 1
+                player.money -= 7
+
+                return True
+
+            return False
+
+        # -----------------------------------------------------
+        # EVENTS
+        # -----------------------------------------------------
+
+        clicked_item = None
+        purchased = False
+        purchase_dead = False
+
+        for event in pygame.event.get():
+
+            f()
+
+            if not running:
+                break
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+
+                if event.button == 1:
+
+                    # Convert actual window coordinates
+                    # back to the 1200 x 800 game coordinates.
+                    mouse_x = (
+                        event.pos[0]
+                        * 1200
+                        / real_screen.get_width()
+                    )
+
+                    mouse_y = (
+                        event.pos[1]
+                        * 800
+                        / real_screen.get_height()
+                    )
+
+                    mouse_pos = (
+                        mouse_x,
+                        mouse_y
+                    )
+
+                    # -----------------------------------------
+                    # LEFT-HAND ITEM CLICK
+                    # -----------------------------------------
+
+                    for item in item_rows:
+
+                        if (
+                            item["stock"] > 0
+                            and item["hitbox"].collidepoint(
+                                mouse_pos
+                            )
+                        ):
+                            selected_item = item["key"]
+                            break
+
+                    # -----------------------------------------
+                    # PURCHASE BUTTON CLICK
+                    # -----------------------------------------
+
+                    if selected_item is not None:
+
+                        selected_data = None
+
+                        for item in item_rows:
+
+                            if item["key"] == selected_item:
+                                selected_data = item
+                                break
+
+                        if selected_data is not None:
+
+                            purchase_rect = pygame.Rect(
+                                right_x + 40,
+                                right_y + right_h - 70,
+                                right_w - 80,
+                                50
+                            )
+
+                            if purchase_rect.collidepoint(
+                                mouse_pos
+                            ):
+
+                                if can_purchase(selected_item):
+
+                                    result = purchase_item(
+                                        selected_item
+                                    )
+
+                                    if result == "dead":
+                                        purchase_dead = True
+
+                                    elif result is True:
+                                        purchased = True
+
+        # -----------------------------------------------------
+        # RESET RIGHT PANEL AFTER SUCCESSFUL PURCHASE
+        # -----------------------------------------------------
+
+        if purchased:
+
+            selected_item = None
+
+        # -----------------------------------------------------
+        # PLAYER DIED FROM ELIXIR
+        # -----------------------------------------------------
+
+        if purchase_dead:
+
+            return "dead"
+
+        # -----------------------------------------------------
+        # DRAW SELECTED ITEM
+        # -----------------------------------------------------
+
+        if selected_item is not None:
+
+            selected_data = None
+
+            for item in item_rows:
+
+                if item["key"] == selected_item:
+                    selected_data = item
+                    break
+
+            if selected_data is not None:
+
+                key = selected_data["key"]
+                name = selected_data["name"]
+                effect = get_item_effect(key)
+                image = item_images.get(key)
+
+                # ---------------------------------------------
+                # IMAGE
+                # ---------------------------------------------
+
+                image_x = right_x + 90
+                image_y = right_y + 25
+                image_w = 220
+                image_h = 180
+
+                if image is not None:
+
+                    i(
+                        image,
+                        image_x,
+                        image_y,
+                        image_w,
+                        image_h
+                    )
+
+                else:
+
+                    # Temporary placeholder so you can see
+                    # where the image will go.
+                    pygame.draw.rect(
+                        screen,
+                        (210, 210, 210),
+                        (
+                            image_x,
+                            image_y,
+                            image_w,
+                            image_h
+                        )
+                    )
+
+                    db(
+                        image_x,
+                        image_y,
+                        image_w,
+                        image_h
+                    )
+
+                    w(
+                        "Image",
+                        image_x + image_w // 2,
+                        image_y + image_h // 2,
+                        (100, 100, 100),
+                        font,
+                        center=True
+                    )
+
+                # ---------------------------------------------
+                # NAME
+                # ---------------------------------------------
+
+                name_y = image_y + image_h + 25
+
+                draw_wrapped_text(
+                    name,
+                    right_x + right_w // 2,
+                    name_y,
+                    right_w - 40,
+                    (0, 0, 0),
+                    font,
+                    line_spacing=3,
+                    center=True
+                )
+
+                # ---------------------------------------------
+                # EFFECT
+                # ---------------------------------------------
+
+                effect_y = name_y + 50
+
+                draw_wrapped_text(
+                    effect,
+                    right_x + right_w // 2,
+                    effect_y,
+                    right_w - 50,
+                    (0, 0, 0),
+                    codef,
+                    line_spacing=3,
+                    center=True
+                )
+
+                # ---------------------------------------------
+                # PURCHASE BUTTON
+                # ---------------------------------------------
+
+                purchase_rect = pygame.Rect(
+                    right_x + 40,
+                    right_y + right_h - 70,
+                    right_w - 80,
+                    50
+                )
+
+                if can_purchase(key):
+
+                    purchase_colour = (
+                        230,
+                        140,
+                        40
+                    )
+
+                else:
+
+                    purchase_colour = (
+                        205,
+                        205,
+                        205
+                    )
+
+                pygame.draw.rect(
+                    screen,
+                    purchase_colour,
+                    purchase_rect
+                )
+
+                db(
+                    purchase_rect.x,
+                    purchase_rect.y,
+                    purchase_rect.width,
+                    purchase_rect.height
+                )
+
+                w(
+                    "Purchase",
+                    purchase_rect.centerx,
+                    purchase_rect.centery,
+                    (255, 255, 255),
+                    font,
+                    center=True
+                )
+
+        # -----------------------------------------------------
+        # DISPLAY
+        # -----------------------------------------------------
+
+        e()
+        # -----------------------------------------------------
+        # DISPLAY
+        # -----------------------------------------------------
+
+        e()
