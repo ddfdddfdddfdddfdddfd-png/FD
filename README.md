@@ -1923,6 +1923,9 @@ try:
 		            if not running:
 		                break
 		
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        return
+
 		            if event.type == pygame.MOUSEBUTTONDOWN:
 		
 		                if event.button == 1:
