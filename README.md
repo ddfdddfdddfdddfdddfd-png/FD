@@ -1924,6 +1924,9 @@ try:
 		                break
 		
                     if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                        player.c = c
+                        player.cc = cc
+                        player.ccc = ccc
                         return
 
 		            if event.type == pygame.MOUSEBUTTONDOWN:
