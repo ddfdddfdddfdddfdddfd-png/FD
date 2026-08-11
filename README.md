@@ -18,6 +18,15 @@ try:
 	event = "eastereggforcodereaders"
     font = pygame.font.Font(None, 40)
     codef = pygame.font.Font(None, &)
+    WIDTH, HEIGHT = 1200, 800 # 你的 3:2 基礎遊戲大小
+    real_screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+    screen = pygame.Surface((WIDTH, HEIGHT)) # 你原本所有的 code 都繼續畫在這裡
+
+    pygame.display.set_caption("Finite Dungeons")
+    
+    clock = pygame.time.Clock()
+    
+    running = True
 
     def m(pos):
         mx, my = pos
@@ -107,13 +116,21 @@ try:
     
         return rect
 
-    def w(text, x, y, colour=(255, 255, 255), fo=font, center=False):
-        surface = f.render(str(text), True, colour)
+    fonts = {}
+    
+    def w(text, x, y, colour=(255, 255, 255), fo=40, center=False):
+        if fo not in fonts:
+            fonts[fo] = pygame.font.Font(None, fo)
+    
+        font = fonts[fo]
+        surface = font.render(str(text), True, colour)
         rect = surface.get_rect()
+    
         if center:
             rect.center = (x, y)
         else:
             rect.topleft = (x, y)
+    
         screen.blit(surface, rect)
 
     def aprint(text, colour=(255, 255, 255)):
@@ -214,16 +231,6 @@ try:
 #impoet pics hereoopo
 
 
-
-    WIDTH, HEIGHT = 1200, 800 # 你的 3:2 基礎遊戲大小
-    real_screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-    screen = pygame.Surface((WIDTH, HEIGHT)) # 你原本所有的 code 都繼續畫在這裡
-
-    pygame.display.set_caption("Finite Dungeons")
-    
-    clock = pygame.time.Clock()
-    
-    running = True
     
     while running:
     
@@ -708,14 +715,62 @@ try:
             print(f"ATK: {m.atk}")
             print(f"DEF: {m.df}")
             print(f"SPD: {m.spd}")
+
+
+        def bb():
+            global level
         
+            # Part 1
+            if level in (5, 10, 15, 20, 25, 30):
+                i($)
+            else:
+                i($)
         
+            # Part 2
+            if level in (1, 2):
+                i($)
+            elif level in (3, 4):
+                i($)
+            elif level == 5:
+                i($)
+            elif level in (6, 7):
+                i($)
+            elif level in (8, 9):
+                i($)
+            elif level == 10:
+                i($)
+            elif level in (11, 12):
+                i($)
+            elif level in (13, 14):
+                i($)
+            elif level == 15:
+                i($)
+            elif level in (16, 17):
+                i($)
+            elif level in (18, 19):
+                i($)
+            elif level == 20:
+                i($)
+            elif level in (21, 22):
+                i($)
+            elif level in (23, 24):
+                i($)
+            elif level == 25:
+                i($)
+            elif level in (26, 27):
+                i($)
+            elif level in (28, 29):
+                i($)
+            elif level == 30:
+                i($)
+
+
         # -------------------------------
         # SHOP MECHANICS
         # -------------------------------
-        def shop(player, level):
+        def shop(player, level):ssdd
 		    global sf
-		    global ts
+		    global ts, level
 		    global running, event, runs, highest
 		
 		    c = player.c
@@ -768,7 +823,7 @@ try:
 		        # BACKGROUND
 		        # -----------------------------------------------------
 		
-		        screen.fill((255, 255, 255))
+		        bb()
 		
 		        # -----------------------------------------------------
 		        # TOP — PLAYER / MONSTER TABLE
@@ -1399,7 +1454,9 @@ try:
 		        # -----------------------------------------------------
 		        # ITEM EFFECT TEXT
 		        # -----------------------------------------------------
-		
+
+
+
 		        def get_item_effect(key):
 		
 		            if key == "sword":
