@@ -61,10 +61,17 @@ try:
         global st
         st = pygame.time.get_ticks()
 
+    _image_cache = {}
+    
     def i(image, x, y, width, height, alpha=255):
-        scaled_image = pygame.transform.scale(image, (width, height))
-        scaled_image.set_alpha(alpha)
-        return screen.blit(scaled_image, (x, y))
+        if isinstance(image, str):
+            if image not in _image_cache:
+                _image_cache[image] = ii(image)
+            image = _image_cache[image]
+
+    scaled_image = pygame.transform.scale(image, (width, height))
+    scaled_image.set_alpha(alpha)
+    return screen.blit(scaled_image, (x, y))
 
     def f():
         global event
