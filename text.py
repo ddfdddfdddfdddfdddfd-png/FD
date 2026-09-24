@@ -1760,7 +1760,8 @@ def run():
         # Fight/shop loop ffgf
         for level in range(1, 31):
             if player.osp == True:
-                print("'雑魚(pointless peasant)', you smirked")
+                print("'雑魚', you smirked")
+                player.osp == False
                 ac["one_shot"] = True
         
             if player.revive_used == True:
