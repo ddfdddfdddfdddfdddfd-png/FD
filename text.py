@@ -234,6 +234,7 @@ class Player(Entity): #sself
     def __init__(self, relic, artefact):
         super().__init__(10, 1, 1, 1)
         self.money = 0
+        self.money -= 4
         self.used_e_sword_before = 0
         self.artefact = artefact
         # Carrier of Legend support
