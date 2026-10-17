@@ -1,3 +1,5 @@
+# $ = placeholder for stuff
+
 import pygame
 import sys
 import time
